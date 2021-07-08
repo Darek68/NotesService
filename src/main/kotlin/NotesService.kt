@@ -84,7 +84,6 @@ class Note (var title: String,var text: String){
         }
         return 0
     }
-
 }
 
 class Comment (val noteId: Int,val message:String,val replyTo:Int){
@@ -95,8 +94,8 @@ class Comment (val noteId: Int,val message:String,val replyTo:Int){
 class NotesService: CrudService<Note>{
     var notes: MutableList<Note> = mutableListOf()
 
-    fun findNote(noteId: Int):Note?{
-        for ((index, note) in notes.withIndex()){
+    fun findNote(noteId: Int):Note?{ //for (note in notes)
+        for (note in notes){
             if (note.id == noteId) {
                 return note
             }
@@ -105,18 +104,17 @@ class NotesService: CrudService<Note>{
     }
   // логика одинаковая для удаления\восстановления
   // del = true  удаление false - восстановление
-  fun delRestCom(element: Comment,del:Boolean): Int? {
+  fun delRestCom(element: Comment,del:Boolean): Int {
       val note = findNote(element.noteId)
       return if (note == null) 0 else note.delRestCom(element.id,del)
   }
 
-
   fun getCom(noteId: Int):String {
       val note = findNote(noteId)
       return if (note == null) "" else {
-          var retValue: String = ""
+          var retValue = ""
           val comments =note.comments
-          for ((indexCm, comment) in comments.withIndex()){//проход по комментам
+          for (comment in comments){//проход по комментам
               if (! comment.del) retValue += (comment.message + "\n")
           }
           retValue
@@ -124,13 +122,10 @@ class NotesService: CrudService<Note>{
   }
 
   fun createCom(element: Comment):Int? {
-      for ((index, note) in notes.withIndex()){
-          if (note.id == element.noteId) {
-              println("03  note.createCom(element)")
-              return note.createCom(element)
-          }
+      val note = findNote(element.noteId)
+      return if (note == null) null else {
+          return note.createCom(element)
       }
-      return null
   }
 
   override fun add(element: Note):Int {
@@ -169,83 +164,3 @@ class NotesService: CrudService<Note>{
       return 1
   }
 }
-
-/*
-
- // логика одинаковая для удаления\восстановления
- fun delRestCom(element: Comment,del:Boolean):Int {
-      println("1  ${element.noteId}  ${element.id}")
-      for ((indexNt, note) in notes.withIndex()){ // проход по заметкам
-          println("2 ${note.id}   ${element.noteId}")
-          if (note.id == element.noteId) {
-              val comments =notes.get(indexNt).comments
-              println("3 по коментам.. ${comments.size}")
-              return note.delRestCom(element.id,del)
-          }
-      }
-      return 0
-  }
-
-fun delCom(element: Comment):Int {
-println("1  ${element.noteId}  ${element.id}")
-      for ((indexNt, note) in notes.withIndex()){ // проход по заметкам
-          println("2 ${note.id}   ${element.noteId}")
-          if (note.id == element.noteId) {
-              val comments =notes.get(indexNt).comments
-              println("3 по коментам.. ${comments.size}")
-              for ((indexCm, comment) in comments.withIndex()){//проход по комментам
-                  println("4 $indexCm   ${comment.id}")
-                  if (comment.id == element.id) {
-                      //comments.removeAt(indexCm)
-                      comments.get(indexCm).del = true
-                      return 1
-                  }
-              }
-          }
-      }
-      return 0
-  }
-
-   fun delCom(element: Comment):Int {
-      println("1  ${element.noteId}  ${element.id}")
-      for ((indexNt, note) in notes.withIndex()){ // проход по заметкам
-          println("2 ${note.id}   ${element.noteId}")
-          if (note.id == element.noteId) {
-              val comments =notes.get(indexNt).comments
-              println("3 по коментам.. ${comments.size}")
-              note.delCom(element.id)
-              for ((indexCm, comment) in comments.withIndex()){//проход по комментам
-                  println("4 $indexCm   ${comment.id}")
-                  if (comment.id == element.id) {
-                      //comments.removeAt(indexCm)
-                      comments.get(indexCm).del = true
-                      return 1
-                  }
-              }
-          }
-      }
-      return 0
-  }
-  fun createCom(element: Comment):Int? {
-      println("01  ${element.noteId}  ${element.id}")
-      for ((index, note) in notes.withIndex()){
-          println("02  ${index}  ${note.id}")
-          if (note.id == element.noteId) {
-              println("03  note.createCom(element)")
-              return note.createCom(element)
-            /*  element.id = notes.get(index).comments.size
-              notes.get(index).comments.add(element.id!!,element)
-             // notes.get(index).comments.plusElement(element)
-              return element.id */
-          }
-      }
-      return null
-  }
-
-   try {
-          this.comments.removeAt(id)
-          return 1
-      }catch (e: IndexOutOfBoundsException){
-          return 0
-      }
-* */
